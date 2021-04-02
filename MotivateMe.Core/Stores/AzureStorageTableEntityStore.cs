@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using MotivateMe.Core.Extensions;
-using MotivateMe.Core.Stores.StoreEntities;
-using Newtonsoft.Json;
 
 namespace MotivateMe.Core.Stores
 {

@@ -27,6 +27,7 @@ namespace MotivateMe.Core.DIConfiguration
 
             //Managers
             services.AddSingleton<IScheduledPushEntityStoreManager, ScheduledPushEntityStoreManager>();
+            services.AddSingleton<IPushJobQueueManager, PushJobQueueManager>();
         }
 
         private static void RegisterCommands(IServiceCollection services)
