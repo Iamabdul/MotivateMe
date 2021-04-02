@@ -1,0 +1,16 @@
+ //user signs up
+            //chooses the times of day they want motivation
+                // based on the hours chosesn, their userId(paritionKey) and times of day (rowKeys) will be saved to the table storage
+            //chooses type
+
+            //model of what will be saved
+                //Scheduled Motivation Table Entity
+                    // PK = userId
+                    // RK = time of day (hour)
+                    // string column = motivation type
+
+
+            //process of this job
+                //time trigger
+                //check rows containing this hour
+                //send seperate queue message to push service (push single message)
