@@ -18,7 +18,7 @@ namespace MotivateMe.Push
 
 
         [FunctionName("Schedule_Job")]
-        public async Task ScheduleJob([TimerTrigger("0 * * * * *")] ILogger log)
+        public async Task ScheduleJob([TimerTrigger("0 * * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -30,7 +30,7 @@ namespace MotivateMe.Push
         }
 
         [FunctionName("Push_Job")]
-        public void PushJob([QueueTrigger("Push_Job")] ILogger log)
+        public void PushJob([QueueTrigger("PushJob")] ILogger log)
         {
             //test
             //for (int i  = 0; i < 3; ++i)
