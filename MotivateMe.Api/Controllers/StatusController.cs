@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace MotivateMe.Api.Controllers
 {
@@ -6,10 +7,16 @@ namespace MotivateMe.Api.Controllers
     [ApiController]
     public class StatusController : ControllerBase
     {
+        readonly string _currentEnvironment;
+        public StatusController(IConfiguration configuration)
+        {
+            _currentEnvironment = configuration["CurrentEnvironment"];
+        }
+
         [HttpGet]
         public IActionResult GetStatus()
         {
-            return Ok();
+            return Ok($"All good in {_currentEnvironment}");
         }
     }
 }
