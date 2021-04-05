@@ -13,8 +13,8 @@ namespace MotivateMe.Core.Stores
     }
     public class PushJobQueueManager : IPushJobQueueManager
     {
-        readonly QueueClient _cloudQueue;
-        readonly string _queueName = "pushjob";
+        private readonly QueueClient _cloudQueue;
+        private readonly string _queueName = "pushjob";
 
         public PushJobQueueManager(IConfiguration configuration)
         {

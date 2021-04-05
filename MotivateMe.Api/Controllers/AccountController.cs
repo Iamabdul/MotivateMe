@@ -1,9 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using MotivateMe.Api.MotivateMeContext;
+using MotivateMe.Api.MotivateMeContext.Jwt;
 
 namespace MotivateMe.Api.Controllers
 {
@@ -12,20 +20,18 @@ namespace MotivateMe.Api.Controllers
     [Route("api/account")]
     public class AccountController : ControllerBase
     {
-        private readonly ILogger<AccountController> _logger;
-
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<AccountController> _logger;
+        private readonly JwtSettings _jwtSettings;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IOptionsSnapshot<JwtSettings> jwtSettings)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _logger = logger;
-
+            _jwtSettings = jwtSettings.Value;
         }
 
         [HttpGet]
@@ -50,8 +56,6 @@ namespace MotivateMe.Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-
                     return Ok(model);
                 }
 
@@ -70,21 +74,53 @@ namespace MotivateMe.Api.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginBindingModel user)
+        public async Task<IActionResult> Login(LoginBindingModel model)
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
+                var user = await _userManager.FindByNameAsync(model.UserName);
 
-                if (result.Succeeded)
+                if (user == null)
                 {
-                    return Ok(result);
+                    return NotFound("User not found");
                 }
 
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
-                return BadRequest(ModelState);
+                var result = await _userManager.CheckPasswordAsync(user, model.Password);
+
+                if (!result)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+                    return BadRequest(ModelState);
+                }
+
+                return Ok(GenerateJwt(user));
             }
-            return BadRequest(user);
+            return BadRequest(model);
+        }
+
+        private string GenerateJwt(ApplicationUser user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_jwtSettings.ExpirationInDays));
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Issuer,
+                claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

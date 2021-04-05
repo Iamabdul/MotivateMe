@@ -16,7 +16,6 @@ namespace MotivateMe.Api.MotivateMeContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
         }
     }
 }
