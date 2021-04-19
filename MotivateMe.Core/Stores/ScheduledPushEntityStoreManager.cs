@@ -10,7 +10,7 @@ namespace MotivateMe.Core.Stores
     public interface IScheduledPushEntityStoreManager
     {
         Task<IEnumerable<ScheduledPush>> GetPushesForTimeOfDay(DateTime dateTime);
-        Task<bool> InsertPushSchedule(string userId, MotivationType motivationType);
+        Task<bool> InsertPushSchedule(string userId, MotivationType motivationType, DateTime timeofDay);
     }
 
     public class ScheduledPushEntityStoreManager : IScheduledPushEntityStoreManager
@@ -33,9 +33,9 @@ namespace MotivateMe.Core.Stores
             });
         }
 
-        public async Task<bool> InsertPushSchedule(string userId, MotivationType motivationType)
+        public async Task<bool> InsertPushSchedule(string userId, MotivationType motivationType, DateTime timeofDay)
         {
-            var pushScheduleEntity = new ScheduledPushEntity(DateTime.UtcNow.Hour.ToString(), userId, motivationType);
+            var pushScheduleEntity = new ScheduledPushEntity(timeofDay.Hour.ToString(), userId, motivationType);
 
             return await _pushEntityStore.SetAsync(pushScheduleEntity);
         }

@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MotivateMe.Api.MotivateMeContext;
 using MotivateMe.Api.MotivateMeContext.Jwt;
+using MotivateMe.Api.Services;
 using MotivateMe.Core.DIConfiguration;
 
 namespace MotivateMe.Api
@@ -64,6 +65,12 @@ namespace MotivateMe.Api
             });
 
             services.ConfigureFormCore(Configuration);
+
+            //Getting user info for the current request
+            services.AddTransient<UserManager<ApplicationUser>>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IUserIdResolver, UserIdResolver>();
+            services.AddScoped<IUserResolver, UserResolver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
