@@ -10,8 +10,8 @@ namespace MotivateMe.Core.Stores
     public interface IMotivationsStoreManager
     {
         Task<IEnumerable<Motivation>> GetMotivationsForType(MotivationType motivationType);
-        Task<IEnumerable<Motivation>> GetMotivationsByUserId(Guid userId);
-        Task<Motivation> GetMotivationById(Guid userId, Guid motivationId);
+        Task<IEnumerable<Motivation>> GetMotivationsByUserId(string userId);
+        Task<Motivation> GetMotivationById(string userId, string motivationId);
         Task InsertMotivation(string userId, MotivationType motivationType, string message);
     }
 
@@ -39,20 +39,20 @@ namespace MotivateMe.Core.Stores
             });
         }
 
-        public async Task<IEnumerable<Motivation>> GetMotivationsByUserId(Guid userId)
+        public async Task<IEnumerable<Motivation>> GetMotivationsByUserId(string userId)
         {
-            var motivationsByUserId = await _motivationByIdEntityStore.GetByPartitionAsync(userId.ToString());
+            var motivationsByUserId = await _motivationByIdEntityStore.GetByPartitionAsync(userId);
             return motivationsByUserId.Select(x => new Motivation
             {
                 Id = new Guid(x.RowKey),
-                MotivationType = (MotivationType)Enum.Parse(typeof(MotivationType), x.PartitionKey, true),
+                MotivationType = (MotivationType)Enum.Parse(typeof(MotivationType), x.MotivationType, true),
                 MotivationMessage = x.MotivationMessage
             });
         }
 
-        public async Task<Motivation> GetMotivationById(Guid userId, Guid motivationId)
+        public async Task<Motivation> GetMotivationById(string userId, string motivationId)
         {
-            var motivationByIdEntity = await _motivationByIdEntityStore.GetAsync(userId.ToString(), motivationId.ToString());
+            var motivationByIdEntity = await _motivationByIdEntityStore.GetAsync(userId, motivationId);
             return new Motivation
             {
                 Id = new Guid(motivationByIdEntity.RowKey),

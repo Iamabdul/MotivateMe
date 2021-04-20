@@ -11,7 +11,6 @@ namespace MotivateMe.Core.Commands
 
     public class StoreMotivationCommand : IStoreMotivationCommand
     {
-
         private readonly IMotivationsStoreManager _motivationsStoreManager;
         public StoreMotivationCommand(IMotivationsStoreManager motivationsStoreManager)
         {

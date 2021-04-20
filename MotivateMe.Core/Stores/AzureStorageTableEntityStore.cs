@@ -10,11 +10,11 @@ namespace MotivateMe.Core.Stores
 {
     public class AzureStorageTableEntityStore<T> : IPartitionKeyValueStore<T> where T : ITableEntity, new ()
     {
-        static readonly IRetryPolicy RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(0.2), 10);
+        private static readonly IRetryPolicy RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(0.2), 10);
 
-        readonly CloudTable _cloudTable;
-        readonly OperationContext OperationContext = new OperationContext();
-        readonly TableRequestOptions TableRequestOptions = new TableRequestOptions
+        private readonly CloudTable _cloudTable;
+        private readonly OperationContext OperationContext = new OperationContext();
+        private readonly TableRequestOptions TableRequestOptions = new TableRequestOptions
         {
             RetryPolicy = RetryPolicy
         };
@@ -46,7 +46,7 @@ namespace MotivateMe.Core.Stores
 
                 continuationToken = seg.ContinuationToken;
 
-            } while (continuationToken != null && cancellationToken.IsCancellationRequested == false);
+            } while (continuationToken != null && !cancellationToken.IsCancellationRequested);
 
             return items;
         }

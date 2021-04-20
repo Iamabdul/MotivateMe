@@ -7,7 +7,6 @@ namespace MotivateMe.Core.Stores.StoreEntities
     {
         public MotivationByIdEntity()
         {
-
         }
 
         public MotivationByIdEntity(string userId, string motivationId, string motivationMessage, MotivationType motivationType)

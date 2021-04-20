@@ -91,10 +91,7 @@ namespace MotivateMe.Api
 
             .UseAuthorization()
 
-            .UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         private void ConfigureDbConnectionAndAuth(IServiceCollection services)

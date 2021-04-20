@@ -7,7 +7,6 @@ namespace MotivateMe.Core.Stores.StoreEntities
     {
         public ScheduledPushEntity()
         {
-
         }
 
         public ScheduledPushEntity(string partitionKey, string rowKey, MotivationType motivationType)

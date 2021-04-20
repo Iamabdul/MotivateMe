@@ -2,7 +2,7 @@
 
 namespace MotivateMe.Api.MotivateMeContext
 {
-    public class ApplicationUser : IdentityUser
+    public sealed class ApplicationUser : IdentityUser
     {
     }
 }

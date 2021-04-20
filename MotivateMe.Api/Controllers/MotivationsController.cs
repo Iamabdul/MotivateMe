@@ -32,33 +32,45 @@ namespace MotivateMe.Api.Controllers
             _storeMotivationCommand = storeMotivationCommand;
         }
 
-        [HttpGet("type/{motivationType}")]
-        public async Task<IEnumerable<Motivation>> GetMotivationsForType(string motivationType)
+        [HttpGet("random")]
+        public async Task<IEnumerable<Motivation>> GetRandomMotivation()
         {
-            var user = await GetOrThrowForCurrentUser();
+            await GetOrThrowForCurrentUser().ConfigureAwait(false);
+            return await _motivationQueries.GetRandomMotivations().ConfigureAwait(false);
+        }
+
+        [HttpGet("type/{motivationType}")]
+        public async Task<IActionResult> GetMotivationsForType(string motivationType)
+        {
+            var user = await GetOrThrowForCurrentUser().ConfigureAwait(false);
             if (!Enum.TryParse(typeof(MotivationType), motivationType, out var result))
-                throw new ArgumentOutOfRangeException(nameof(MotivationType), $"Enum type not recognised {motivationType}");
-            return await _motivationQueries.GetAllForType((MotivationType)result);
+                return BadRequest($"Enum type not recognised: {motivationType}");
+            return Ok(await _motivationQueries.GetAllForType((MotivationType)result).ConfigureAwait(false));
         }
 
         [HttpGet("{motivationId}")] //motivations by user should be in the users controller?
-        public async Task<Motivation> GetMotivationsById(Guid motivationId)
+        public async Task<IActionResult> GetMotivationsById(string motivationId)
         {
-            var user = await GetOrThrowForCurrentUser();
-            return await _motivationQueries.GetById(new Guid(user.Id), motivationId);
+            if (!Guid.TryParse(motivationId, out _))
+            {
+                return BadRequest("The id of this motivation is not valid");
+            }
+
+            var user = await GetOrThrowForCurrentUser().ConfigureAwait(false);
+            return Ok(await _motivationQueries.GetById(user.Id, motivationId).ConfigureAwait(false));
         }
 
         [HttpPost]
         public async Task<IActionResult> PostMotivationForType([FromBody] Motivation motivation)
         {
-            var user = await GetOrThrowForCurrentUser();
-            await _storeMotivationCommand.Execute(user.Id, motivation);
+            var user = await GetOrThrowForCurrentUser().ConfigureAwait(false);
+            await _storeMotivationCommand.Execute(user.Id, motivation).ConfigureAwait(false);
             return Ok();
         }
 
         private async Task<ApplicationUser> GetOrThrowForCurrentUser()
         {
-            var user = await _userResolver.GetCurrentUser();
+            var user = await _userResolver.GetCurrentUser().ConfigureAwait(false);
             if (user == null)
                 throw new UnauthorizedAccessException("User does not exist");
             return user;

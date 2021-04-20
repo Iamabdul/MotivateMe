@@ -4,7 +4,6 @@ namespace MotivateMe.Core.Stores.StoreEntities
 {
     public class StandardTableEntity : TableEntity
     {
-
         public StandardTableEntity()
         {
 

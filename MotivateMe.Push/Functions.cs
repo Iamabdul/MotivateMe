@@ -12,9 +12,9 @@ namespace MotivateMe.Push
 {
     public class Functions
     {
-        readonly IScheduledPushEntityStoreManager _scheduledPushManager;
-        readonly IPushJobQueueManager _pushJobQueueManager;
-        readonly IPushMessageCommand _pushMessageCommand;
+        private readonly IScheduledPushEntityStoreManager _scheduledPushManager;
+        private readonly IPushJobQueueManager _pushJobQueueManager;
+        private readonly IPushMessageCommand _pushMessageCommand;
 
         public Functions(
             IScheduledPushEntityStoreManager scheduledPushManager,
@@ -25,7 +25,6 @@ namespace MotivateMe.Push
             _pushJobQueueManager = pushJobQueueManager;
             _pushMessageCommand = pushMessageCommand;
         }
-
 
         [FunctionName("Schedule_Job")]
         public async Task ScheduleJob([TimerTrigger("0 * * * * *")] TimerInfo myTimer, ILogger logger)
@@ -52,7 +51,7 @@ namespace MotivateMe.Push
             Console.WriteLine(await _pushMessageCommand.Execute(queueMessage.UserId.ToString(), queueMessage.MotivationType.ToString()));
         }
 
-        async Task SendToQueue(ILogger logger, Guid userId, MotivationType motivationType)
+        private async Task SendToQueue(ILogger logger, Guid userId, MotivationType motivationType)
         {
             await _pushJobQueueManager.PushMessage(new MotivationQueueMessage { UserId = userId, MotivationType = motivationType });
             logger.LogInformation($"Sending motivation to {userId} with a {motivationType} of encouragement!");
